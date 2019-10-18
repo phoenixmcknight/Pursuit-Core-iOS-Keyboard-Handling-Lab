@@ -97,7 +97,7 @@ class ViewController: UIViewController {
       
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
+        checkKeyboardHeight()
       //  view.backgroundColor =  .white
     }
     
@@ -115,7 +115,7 @@ addSubviews()
         passwordTextFieldConstraints()
         loginButtonConstraints()
         forgotPasswordConstraints()
-        checkKeyboardHeight()
+      //  checkKeyboardHeight()
     }
         func addSubviews() {
             
@@ -134,7 +134,7 @@ addSubviews()
     
     self.keyboardHeight = keyboardRect.height
 
-  
+    moveKeysUp(value: keyboardRect.height)
  }
     }
     func scrollViewConstraints() {
@@ -205,9 +205,7 @@ extension UITextField:UITextFieldDelegate {
     }
 }
 extension ViewController:UITextFieldDelegate {
-    func textFieldDidBeginEditing(_ textField: UITextField) {
-        moveKeysUp(value: keyboardHeight)
-    }
+   
                func textFieldDidEndEditing(_ textField: UITextField) {
                 moveKeysDown()
                }
