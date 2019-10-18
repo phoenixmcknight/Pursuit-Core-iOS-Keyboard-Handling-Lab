@@ -10,7 +10,6 @@ import UIKit
 
 class ViewController: UIViewController {
 
-    let frame = UIScreen.main.bounds
    lazy var welcomeLabel:UILabel = {
     let label = UILabel(text: "Proceed with login")
     label.font = UIFont(name: "Arial", size: 18)
@@ -64,38 +63,36 @@ class ViewController: UIViewController {
         return button
        }()
     lazy var scrollView:UIScrollView = {
-        let frame = UIScreen.main.bounds
         let scroll = UIScrollView()
-        scroll.contentSize = CGSize(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height * 1.5)
-       scroll.contentInset = UIEdgeInsets(top: 500, left: 0, bottom: -500, right: 0)
+        scroll.contentSize = CGSize(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
+       scroll.contentInset = UIEdgeInsets(top: 150, left: 0, bottom: 0, right: 0)
      //   scroll.contentOffset = CGPoint(x: 0, y: -500)
         scroll.backgroundColor = .blue
         scroll.translatesAutoresizingMaskIntoConstraints = false
         return scroll
     }()
    
-    var keyboardHeight = CGFloat() {
-        didSet {
-            moveKeysDown(value: self.keyboardHeight)
-        }
-    }
+    var keyboardHeight = CGFloat()
+    
+    lazy var myViewCenterYConstraint: NSLayoutConstraint = {
+        self.customImage.centerYAnchor.constraint(equalTo: scrollView.centerYAnchor,constant: -300)
+    }()
+ 
     
     func checkKeyboardHeight() { NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil) }
     
     
   
     @objc func moveKeysUp(value:CGFloat) {
-        let array = [userName,passWord,userNameTextField,passWordTextField,welcomeLabel,customImage]
-        for i in array {
-            i.center.y = i.center.y - value
-        }
+        myViewCenterYConstraint.isActive = false
+        myViewCenterYConstraint = customImage.centerYAnchor.constraint(equalTo: scrollView.centerYAnchor,constant: -300 - value)
+        myViewCenterYConstraint.isActive = true
     }
    
-    @objc func moveKeysDown(value:CGFloat) {
-           let array = [userName,passWord,userNameTextField,passWordTextField,welcomeLabel,customImage]
-           for i in array {
-               i.center.y = i.center.y + keyboardHeight
-           }
+    @objc func moveKeysDown() {
+          myViewCenterYConstraint.isActive = false
+                 myViewCenterYConstraint = customImage.centerYAnchor.constraint(equalTo: scrollView.centerYAnchor,constant: -300)
+                 myViewCenterYConstraint.isActive = true
        }
       
     override func viewWillAppear(_ animated: Bool) {
@@ -136,7 +133,7 @@ addSubviews()
  if let keyboardRect = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
     
     self.keyboardHeight = keyboardRect.height
-    moveKeysUp(value: keyboardRect.height)
+
   
  }
     }
@@ -154,8 +151,8 @@ addSubviews()
              NSLayoutConstraint.activate([
                         customImage.heightAnchor.constraint(equalToConstant: 250),
                         customImage.widthAnchor.constraint(equalToConstant: 250),
-                        customImage.centerXAnchor.constraint(equalTo: self.scrollView.centerXAnchor),
-                        customImage.centerYAnchor.constraint(equalTo: self.scrollView.centerYAnchor, constant: -250)
+                        customImage.centerXAnchor.constraint(equalTo: self.scrollView.centerXAnchor),myViewCenterYConstraint
+                       // customImage.centerYAnchor.constraint(equalTo: self.scrollView.centerYAnchor, constant: -300)
                         ])
     }
     func usernameLabelConstraint() {
@@ -208,9 +205,11 @@ extension UITextField:UITextFieldDelegate {
     }
 }
 extension ViewController:UITextFieldDelegate {
-    
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        moveKeysUp(value: keyboardHeight)
+    }
                func textFieldDidEndEditing(_ textField: UITextField) {
-                moveKeysDown(value: keyboardHeight)
+                moveKeysDown()
                }
                func textFieldShouldReturn(_ textField: UITextField) -> Bool {
                    print("GO")
